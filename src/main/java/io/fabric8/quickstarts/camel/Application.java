@@ -25,17 +25,19 @@ import org.springframework.context.annotation.ImportResource;
  */
 @SpringBootApplication
 @ImportResource({"classpath:spring/camel-context.xml"})
-public class Application extends RouteBuilder {
+public class Application /*extends RouteBuilder*/ {
+	
+	private final String wersja="2";
 
     // must have a main method spring-boot can run
     public static void main(String[] args) {
         SpringApplication.run(Application.class, args);
     }
 
-    @Override
+    /*@Override
     public void configure() throws Exception {
-        from("timer://foo?period=5000")
-            .setBody().constant("Hello World")
+        from("timer://licznik?period=5000")
+            .setBody().simple("Hello World os "+wersja+" ${exchangeProperty.TIMER_COUNTER}")
             .log(">>> ${body}");
-    }
+    }*/
 }

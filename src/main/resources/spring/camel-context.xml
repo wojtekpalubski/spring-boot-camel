@@ -5,14 +5,38 @@
        http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
        http://camel.apache.org/schema/spring       http://camel.apache.org/schema/spring/camel-spring.xsd">
 
+    <bean class="org.apache.activemq.ActiveMQSslConnectionFactory" id="activemqSSL">
+        <property name="brokerURL" value="failover://ssl://${activemq.host}:${activemq.port}"/>
+        <property name="userName" value="{{activemq.user}}"/>
+        <property name="password" value="{{activemq.haslo}}"/>
+        <property name="trustStore" value="file:client.ts" />
+        <property name="trustStorePassword" value="{{truststore.haslo}}" />
+    </bean>
+    <!--<bean class="org.apache.activemq.camel.component.ActiveMQComponent" id="activemqTCP">-->
+        <!--<property name="brokerURL" value="tcp://${activemq.host}:${activemq.port}"/>-->
+        <!--<property name="userName" value="{{activemq.user}}"/>-->
+        <!--<property name="password" value="{{activemq.haslo}}"/>-->
+    <!--</bean>-->
+
+    <bean id="shutdownTimeout" class="org.apache.camel.impl.DefaultShutdownStrategy">
+        <property name="timeout" value="15"/>
+    </bean>
+
     <!-- You could also define a traditional camel context here -->
-    <!--
     <camelContext xmlns="http://camel.apache.org/schema/spring">
-        <route>
-            <from uri="timer://foo?period=1000"/>
-            <setBody><simple>Hello World from camel-contex.xml</simple></setBody>
-            <log message=">>> ${body}"/>
+        <route id="zapisKolejki">
+            <from uri="timer://foo?period={{czestosc.odczytu}}"/>
+            <setBody><simple>{{wlasnosc.przyklad}}</simple></setBody>
+            <log message=">>> ${body} "/>
+            <log message="{{wlasnosc.przyklad}}"/>
+            <to uri="activemq:{{activemq:kolejka}}"/>
         </route>
+
+        <!--<route id="odczytKolejki">-->
+            <!--<from uri="activemq:{{activemq:kolejka}}"/>-->
+            <!--<log message="odczytano z kolejki"/>-->
+            <!--<log message="___ ${body} ${headers.firedTime}"/>-->
+            <!--<to uri="log:poOdczycie?showAll=true"/>-->
+        <!--</route>-->
     </camelContext>
-    -->
 </beans>

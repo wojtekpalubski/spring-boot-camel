@@ -41,6 +41,8 @@
     <fabric8.maven.plugin.version>3.5.34</fabric8.maven.plugin.version>
     <maven-compiler-plugin.version>3.6.0</maven-compiler-plugin.version>
     <maven-surefire-plugin.version>2.19.1</maven-surefire-plugin.version>
+
+    <activemq.version>5.11.0.redhat-630262</activemq.version>
   </properties>
 
   <dependencyManagement>
@@ -85,6 +87,22 @@
       <groupId>org.apache.camel</groupId>
       <artifactId>camel-spring-boot-starter</artifactId>
     </dependency>
+
+    <dependency>
+      <groupId>org.apache.activemq</groupId>
+      <artifactId>activemq-camel</artifactId>
+      <version>${activemq.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.camel</groupId>
+      <artifactId>camel-jms</artifactId>
+      <!--<version>${camel.version}</version>-->
+    </dependency>
+    <!--<dependency>-->
+      <!--<groupId>org.apache.camel</groupId>-->
+      <!--<artifactId>camel-simple</artifactId>-->
+      <!--&lt;!&ndash;<version>${camel.version}</version>&ndash;&gt;-->
+    <!--</dependency>-->
 
     <!-- testing -->
     <dependency>

@@ -1,69 +1,46 @@
-# Spring-Boot Camel QuickStart
+#### Utworzenie kluczy SSL
 
-This example demonstrates how you can use Apache Camel with Spring Boot
-based on a [fabric8 Java base image](https://github.com/fabric8io/base-images#java-base-images).
+> keytool -genkey -alias broker -keyalg RSA keystore broker.ks
 
-The quickstart uses Spring Boot to configure a little application that includes a Camel
-route that triggers a message every 5th second, and routes the message to a log.
+> keytool -export -alias broker -keystore broker.ks -file broker_cert 
 
+> keytool -genkey -alias client -keyalg RSA -keystore client.ks
 
-### Building
+> keytool -import -alias broker -keystore client.ts -file broker_cert
 
-The example can be built with
+Zapamiętać hasła do keystore
 
-    mvn clean install
+> keytool -list -keystore broker.ks
 
+### Utworzenie serviceaccount w openshift
 
-### Running the example locally
+> echo {“kind”: “ServiceAccount”, “apiVersion”: “v1”, “metadata”: {“name”: “broker-service-account”}} | oc create -f –
 
-The example can be run locally using the following Maven goal:
+### Utworzenie secretu
 
-    mvn spring-boot:run
+> oc secrets new broker-secret broker.ks
 
+### Dodanie secretu do serviceaccount 
 
-### Running the example in Kubernetes
+> oc secrets add sa/broker-service-account secret/broker-secret
 
-It is assumed a running Kubernetes platform is already running. If not you can find details how to [get started](http://fabric8.io/guide/getStarted/index.html).
+### Dodanie roli view do serviceaccount
 
-Assuming your current shell is connected to Kubernetes or OpenShift so that you can type a command like
+> oc policy add-role-to-user view system:serviceaccount:ekw-dev:broker-service-account
 
-```
-kubectl get pods
-```
+### Utworzenie brokera na openshift
 
-or for OpenShift
+- dodać do projektu aplikację z template JBoss A-MQ 6.3 (ssl)
+- w parametrach ustawić nazwę i hasło użytkownika activemq
+- w parametrach podać nazwę utworzonego secretu broker-secret
+- jako keystore i truststore podać broker.ks
+- w parametrach ustawić hała do keystore i truststore
 
-```
-oc get pods
-```
+### Utworzenie routy ssl
 
-Then the following command will package your app and run it on Kubernetes:
+Dla serwisu broker-amq-ssl utworzyć routę: secure, terminacja passthrough
 
-```
-mvn fabric8:run
-```
+### konfiguracja klienta
 
-To list all the running pods:
-
-    oc get pods
-
-Then find the name of the pod that runs this quickstart, and output the logs from the running pods with:
-
-    oc logs <name of pod>
-
-You can also use the [fabric8 developer console](http://fabric8.io/guide/console.html) to manage the running pods, and view logs and much more.
-
-
-#### Integration Testing
-
-The example includes a [fabric8 arquillian](https://github.com/fabric8io/fabric8/tree/master/components/fabric8-arquillian) Kubernetes Integration Test. 
-Once the container image has been built and deployed in Kubernetes, the integration test can be run with:
-
-	mvn test -Dtest=*KT
-
-The test is disabled by default and has to be enabled using `-Dtest`. [Integration Testing](https://fabric8.io/guide/testing.html) and [Fabric8 Arquillian Extension](https://fabric8.io/guide/arquillian.html) provide more information on writing full fledged black box integration tests for Kubernetes. 
-
-### More details
-
-You can find more details about running this [quickstart](http://fabric8.io/guide/quickstarts/running.html) on the website. This also includes instructions how to change the Docker image user and registry.
+Klient ma się podłączać po ssl na adres routy i port 443
 

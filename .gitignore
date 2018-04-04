@@ -15,3 +15,6 @@ overlays
 .cache
 dependency-reduced-pom.xml
 .vagrant/
+*.ks
+*.ts
+*_cert
